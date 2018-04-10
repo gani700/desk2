@@ -1,0 +1,48 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <iterator>
+
+using namespace std;
+
+class Afficher
+{
+	ostream &os_;
+public:
+	Afficher(ostream &os) : os_(os) {}
+	template <typename T>
+		void operator() (const T &v) const { os_ << v << " "; }
+};
+
+class Fibonacci
+{
+	vector<unsigned> v_;
+public:
+	Fibonacci() { v_.push_back(0); v_.push_back(1); }
+	
+	unsigned operator() (unsigned &n)
+	{
+		while (v_.size() < n + 1)
+			v_.push_back(v_[v_.size() - 2] + v_[v_.size() - 1]);
+		return v_[n];
+	}
+
+	vector<unsigned> getVector() { return v_; }
+};
+
+int main()
+{
+	Fibonacci fibonacci;
+
+	for (unsigned i = 0; i < 10; i++)
+		cout << fibonacci(i) << " ";
+
+	vector<unsigned>::iterator begin = fibonacci.getVector().begin();
+	auto end = fibonacci.getVector().end();
+
+	copy(begin, end, ostream_iterator<unsigned>(cout, " "));
+
+
+
+	return 0;
+}
