@@ -1,0 +1,61 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <iterator>
+
+using namespace std;
+
+class Afficher
+{
+	ostream &os_;
+public:
+	Afficher(ostream &os) : os_(os) {}
+	template <typename T>
+		void operator() (const T &valeur) const { os_ << valeur << " "; }
+};
+
+class Fibonacci
+{
+	vector<unsigned> vect_;
+public:
+	// Les 2 premières valeurs : 0, 1 (Suite de Fibonacci)
+	Fibonacci() { vect_.push_back(0); vect_.push_back(1); }
+	
+	unsigned operator() (unsigned &n)
+	{
+		while (vect_.size() < n + 1)
+			vect_.push_back(vect_[vect_.size() - 1] + vect_[vect_.size() - 2]);
+		return vect_[n];
+	}
+
+	vector<unsigned> getVector() { return vect_; }
+};
+
+int main()
+{
+	Fibonacci fibonacci;
+
+	for (unsigned i = 0; i < 10; i++)
+		fibonacci(i);
+
+	vector<unsigned>::iterator begin = fibonacci.getVector().begin();
+	auto end = fibonacci.getVector().end();
+	
+	// 1ere version  
+	copy(begin, end, ostream_iterator<unsigned>(cout, " "));
+	// sous linux avec g++ 5.04 la suite donne ceci : 0 0 1 2 3 5 8 13 21 34 (le 2e terme est 0 alors qu'il devrait être 1) 
+	// g++ -Wall -std=c++11 fibonacci.cpp -o fibonacci
+	// sous windows : 3722304998 3722304989 1172160010 184603169 16148536 16158000 1465212612 669 2 1
+	// fin 1ere version
+
+	// 2e version 
+	// copy(fibonacci.getVector().begin(), fibonacci.getVector().end(), ostream_iterator<unsigned>(cout, " "));
+	// Aucun affichage sous linux ou windows
+	// fin 2e version
+	// http://www.math.uaa.alaska.edu/~afkjm/csce211/handouts/RandomFunctions.pdf
+	// 3e version
+	// copy(begin, end, Afficher(cout));
+	// Erreurs avec linux ou windows
+	// fin 
+	return 0;
+}
